@@ -1,0 +1,39 @@
+data:
+  mode: m5
+
+  n_skus: 50
+  n_days: 730
+
+  m5_sales_path: data/sales_train_evaluation.csv
+  m5_calendar_path: data/calendar.csv
+  m5_prices_path: data/sell_prices.csv
+
+features:
+  lags: [7, 14, 28]
+  rolling_windows: [7, 28]
+
+split:
+  train_ratio: 0.70
+  val_ratio: 0.15
+
+volatility:
+  cv_threshold: 0.80      # balanced: ~30-40% volatile on M5
+
+model:
+  base:
+    n_estimators: 300
+    learning_rate: 0.05
+    num_leaves: 31
+    min_child_samples: 20
+
+uq:
+  confidence_levels: [0.80, 0.90]
+  aci:
+    gamma_grid: [0.001, 0.005, 0.01, 0.05]
+
+decision:
+  service_level_z: 1.65
+  lead_time: 7
+
+evaluation:
+  n_cv_folds: 3

@@ -1,0 +1,20 @@
+{
+  "dataset": "M5 Competition (Walmart, 150 SKUs, 2011\u20132016)",
+  "target_coverage": 0.9,
+  "n_skus": 50,
+  "n_test_rows": 14350,
+  "pct_volatile": 0.8340766550522648,
+  "QR_cov_all": 0.9442,
+  "SCP_cov_all": 0.9194,
+  "ACI_cov_all": 0.8895,
+  "QR_cov_volatile": 0.9397,
+  "SCP_cov_volatile": 0.9413,
+  "ACI_cov_volatile": 0.9087,
+  "stockout_reduction_volatile_pct": 66.7,
+  "excess_change_volatile_pct": 59.5,
+  "audit_target_coverage": 0.9,
+  "audit_coverage_all": 0.8895,
+  "audit_coverage_volatile": 0.9087,
+  "audit_volatile_gap": -0.0087,
+  "audit_underestimation_flag": "False"
+}

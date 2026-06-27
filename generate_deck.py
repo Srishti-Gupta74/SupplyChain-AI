@@ -207,13 +207,27 @@ def create_deck():
         p.space_after = Pt(12)
 
     # ══════════════════════════════════════════════════════════════════════════
-    # SLIDE 4: Technical Architecture
+    # SLIDE 4: Architectural Diagram
     # ══════════════════════════════════════════════════════════════════════════
     slide4 = prs.slides.add_slide(blank_slide_layout)
     set_slide_bg(slide4)
-    add_header(slide4, "Adaptive Conformal Inference Architecture", "CORE TECHNICAL ENGINE")
+    add_header(slide4, "SupplyShield AI End-to-End System Architecture", "SYSTEM ARCHITECTURE")
 
-    # 3 Column Layout
+    # Add background container card for diagram
+    add_card(slide4, Inches(0.8), Inches(1.8), Inches(11.733), Inches(5.1), border_color=CYAN)
+    
+    # Insert high-res architectural diagram
+    import os
+    if os.path.exists("outputs/architecture_diagram.png"):
+        slide4.shapes.add_picture("outputs/architecture_diagram.png", Inches(1.0), Inches(2.0), Inches(11.333), Inches(4.7))
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # SLIDE 5: Technical Engine Details
+    # ══════════════════════════════════════════════════════════════════════════
+    slide5 = prs.slides.add_slide(blank_slide_layout)
+    set_slide_bg(slide5)
+    add_header(slide5, "Adaptive Conformal Inference Technical Engine", "ALGORITHMIC DEEP DIVE")
+
     col_w = Inches(3.7)
     gap = Inches(0.3)
     lefts = [Inches(0.8), Inches(0.8) + col_w + gap, Inches(0.8) + (col_w + gap)*2]
@@ -239,8 +253,8 @@ def create_deck():
     ]
 
     for i, (title, color, items) in enumerate(cards_data):
-        add_card(slide4, lefts[i], Inches(1.8), col_w, Inches(5.0), border_color=color)
-        tb = slide4.shapes.add_textbox(lefts[i] + Inches(0.2), Inches(2.1), col_w - Inches(0.4), Inches(4.4))
+        add_card(slide5, lefts[i], Inches(1.8), col_w, Inches(5.0), border_color=color)
+        tb = slide5.shapes.add_textbox(lefts[i] + Inches(0.2), Inches(2.1), col_w - Inches(0.4), Inches(4.4))
         tf = tb.text_frame
         tf.word_wrap = True
         
@@ -259,14 +273,14 @@ def create_deck():
             p.space_after = Pt(10)
 
     # ══════════════════════════════════════════════════════════════════════════
-    # SLIDE 5: Newsvendor Derivation
+    # SLIDE 6: Newsvendor Derivation
     # ══════════════════════════════════════════════════════════════════════════
-    slide5 = prs.slides.add_slide(blank_slide_layout)
-    set_slide_bg(slide5)
-    add_header(slide5, "Connecting Uncertainty to Safety Stock", "NEWSVENDOR INVENTORY THEORY")
+    slide6 = prs.slides.add_slide(blank_slide_layout)
+    set_slide_bg(slide6)
+    add_header(slide6, "Connecting Uncertainty to Safety Stock", "NEWSVENDOR INVENTORY THEORY")
 
-    add_card(slide5, Inches(0.8), Inches(1.8), Inches(11.7), Inches(5.0))
-    tb = slide5.shapes.add_textbox(Inches(1.2), Inches(2.2), Inches(10.9), Inches(4.2))
+    add_card(slide6, Inches(0.8), Inches(1.8), Inches(11.7), Inches(5.0))
+    tb = slide6.shapes.add_textbox(Inches(1.2), Inches(2.2), Inches(10.9), Inches(4.2))
     tf = tb.text_frame
     tf.word_wrap = True
 
@@ -297,11 +311,11 @@ def create_deck():
         p.space_after = Pt(14)
 
     # ══════════════════════════════════════════════════════════════════════════
-    # SLIDE 6: Evaluation Benchmark
+    # SLIDE 7: Evaluation Benchmark & Visual Evidence
     # ══════════════════════════════════════════════════════════════════════════
-    slide6 = prs.slides.add_slide(blank_slide_layout)
-    set_slide_bg(slide6)
-    add_header(slide6, "Empirical Evaluation & Walmart M5 Proof", "BENCHMARK RESULTS")
+    slide7 = prs.slides.add_slide(blank_slide_layout)
+    set_slide_bg(slide7)
+    add_header(slide7, "Empirical Evaluation & Visual Calibration Evidence", "BENCHMARK RESULTS")
 
     # Top KPI Banner
     kpi_w = Inches(3.7)
@@ -311,8 +325,8 @@ def create_deck():
         ("+59.5%", "CAPITAL RELEASED", "Excess inventory freed vs static", PURPLE)
     ]
     for i, (val, lbl, sub, col) in enumerate(kpis):
-        add_card(slide6, lefts[i], Inches(1.8), kpi_w, Inches(1.8), bg_color=DARK_CARD, border_color=col)
-        tb = slide6.shapes.add_textbox(lefts[i], Inches(1.9), kpi_w, Inches(1.5))
+        add_card(slide7, lefts[i], Inches(1.8), kpi_w, Inches(1.8), bg_color=DARK_CARD, border_color=col)
+        tb = slide7.shapes.add_textbox(lefts[i], Inches(1.9), kpi_w, Inches(1.5))
         tf = tb.text_frame
         tf.word_wrap = True
         p = tf.paragraphs[0]
@@ -335,39 +349,25 @@ def create_deck():
         p3.font.color.rgb = MUTED
         p3.alignment = PP_ALIGN.CENTER
 
-    # Bottom Narrative Card
-    add_card(slide6, Inches(0.8), Inches(3.9), Inches(11.7), Inches(2.9))
-    tb = slide6.shapes.add_textbox(Inches(1.2), Inches(4.1), Inches(10.9), Inches(2.5))
-    tf = tb.text_frame
-    tf.word_wrap = True
-    p = tf.paragraphs[0]
-    p.text = "Rigorous Evaluation Across 30,490 SKUs (2011–2016)"
-    p.font.size = Pt(18)
-    p.font.bold = True
-    p.font.color.rgb = WHITE
-    p.space_after = Pt(12)
+    # Bottom Left Chart: Empirical Coverage Bar Chart
+    add_card(slide7, Inches(0.8), Inches(3.8), Inches(5.7), Inches(3.3), border_color=BLUE)
+    if os.path.exists("outputs/coverage_comparison_deck.png"):
+        slide7.shapes.add_picture("outputs/coverage_comparison_deck.png", Inches(0.9), Inches(3.9), Inches(5.5), Inches(3.1))
 
-    findings = [
-        "Volatile Regime Superiority: While static Quantile Regression (94.0%) and Static Conformal Prediction (94.1%) severely over-cover and hoard expensive excess inventory, ACI precisely adapts to 90.9%.",
-        "Underestimation Audit Pass: Verified zero systematic underestimation during extreme demand shocks.",
-        "Generalizability: Evaluated identically on Walmart M5 Retail and DataCo Smart Supply Chain (18k+ records), proving robust multi-domain resilience."
-    ]
-    for f in findings:
-        p = tf.add_paragraph()
-        p.text = f"✔  {f}"
-        p.font.size = Pt(13)
-        p.font.color.rgb = SLATE
-        p.space_after = Pt(8)
+    # Bottom Right Chart: Alpha Trajectory
+    add_card(slide7, Inches(6.8), Inches(3.8), Inches(5.7), Inches(3.3), border_color=CYAN)
+    if os.path.exists("outputs/alpha_trajectory.png"):
+        slide7.shapes.add_picture("outputs/alpha_trajectory.png", Inches(6.9), Inches(3.9), Inches(5.5), Inches(3.1))
 
     # ══════════════════════════════════════════════════════════════════════════
-    # SLIDE 7: Live Command Center UX
+    # SLIDE 8: Live Command Center UX
     # ══════════════════════════════════════════════════════════════════════════
-    slide7 = prs.slides.add_slide(blank_slide_layout)
-    set_slide_bg(slide7)
-    add_header(slide7, "Enterprise Risk Command Center Prototype", "LIVE TRIAGE PLATFORM")
+    slide8 = prs.slides.add_slide(blank_slide_layout)
+    set_slide_bg(slide8)
+    add_header(slide8, "Enterprise Risk Command Center Prototype", "LIVE TRIAGE PLATFORM")
 
-    add_card(slide7, Inches(0.8), Inches(1.8), Inches(5.7), Inches(4.8), border_color=BLUE)
-    tb1 = slide7.shapes.add_textbox(Inches(1.1), Inches(2.1), Inches(5.1), Inches(4.2))
+    add_card(slide8, Inches(0.8), Inches(1.8), Inches(5.7), Inches(4.8), border_color=BLUE)
+    tb1 = slide8.shapes.add_textbox(Inches(1.1), Inches(2.1), Inches(5.1), Inches(4.2))
     tf1 = tb1.text_frame
     tf1.word_wrap = True
     p = tf1.paragraphs[0]
@@ -390,8 +390,8 @@ def create_deck():
         p.font.color.rgb = SLATE
         p.space_after = Pt(12)
 
-    add_card(slide7, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.8), border_color=CYAN)
-    tb2 = slide7.shapes.add_textbox(Inches(7.1), Inches(2.1), Inches(5.1), Inches(4.2))
+    add_card(slide8, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.8), border_color=CYAN)
+    tb2 = slide8.shapes.add_textbox(Inches(7.1), Inches(2.1), Inches(5.1), Inches(4.2))
     tf2 = tb2.text_frame
     tf2.word_wrap = True
     p = tf2.paragraphs[0]
@@ -415,14 +415,14 @@ def create_deck():
         p.space_after = Pt(12)
 
     # ══════════════════════════════════════════════════════════════════════════
-    # SLIDE 8: Impact & Conclusion
+    # SLIDE 9: Impact & Conclusion
     # ══════════════════════════════════════════════════════════════════════════
-    slide8 = prs.slides.add_slide(blank_slide_layout)
-    set_slide_bg(slide8)
-    add_header(slide8, "Public Good Impact & Summary", "GRAND FINALE CONCLUSION")
+    slide9 = prs.slides.add_slide(blank_slide_layout)
+    set_slide_bg(slide9)
+    add_header(slide9, "Public Good Impact & Summary", "GRAND FINALE CONCLUSION")
 
-    add_card(slide8, Inches(1.2), Inches(1.8), Inches(10.933), Inches(4.8), bg_color=CARD_BG, border_color=PURPLE)
-    tb = slide8.shapes.add_textbox(Inches(1.6), Inches(2.2), Inches(10.1), Inches(4.0))
+    add_card(slide9, Inches(1.2), Inches(1.8), Inches(10.933), Inches(4.8), bg_color=CARD_BG, border_color=PURPLE)
+    tb = slide9.shapes.add_textbox(Inches(1.6), Inches(2.2), Inches(10.1), Inches(4.0))
     tf = tb.text_frame
     tf.word_wrap = True
 
@@ -454,8 +454,13 @@ def create_deck():
 
     # Save presentation
     output_path = "SupplyShield_AI_Grand_Finale_Deck.pptx"
-    prs.save(output_path)
-    print(f"Presentation saved successfully to {output_path}")
+    try:
+        prs.save(output_path)
+        print(f"Presentation saved successfully to {output_path}")
+    except PermissionError:
+        output_path = "SupplyShield_AI_Grand_Finale_Deck_Visual.pptx"
+        prs.save(output_path)
+        print(f"Original file locked by viewer. Presentation saved successfully to {output_path}")
 
 if __name__ == "__main__":
     create_deck()

@@ -1,6 +1,6 @@
 """
-SupplyShield AI — Enterprise Risk Command Center
-Professional SaaS Frontend with Space Grotesk/Plus Jakarta Sans Typography, Dynamic Ambient Background, Wipe Reveal Animations, and Minimalist Bento UX.
+SupplyShield AI — Lowe's Executive Decision Platform
+Landing Page: Exact Reference Screenshot Design // Inside Platform: Exact Interactive "Surprise Me" Build
 Run: streamlit run app.py
 """
 import streamlit as st
@@ -9,539 +9,498 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
 import json
 from pathlib import Path
+from datetime import datetime
 
-# ── Page config ───────────────────────────────────────────────────────────────
+# ── Page Configuration (Sidebar Collapsed & Extinguished) ─────────────────────
 st.set_page_config(
-    page_title="SupplyShield AI — Enterprise Platform",
+    page_title="SupplyShield AI | Enterprise Risk Command",
+    page_icon="⚡",
     layout="wide",
-    initial_sidebar_state="collapsed",
-    page_icon="◈"
+    initial_sidebar_state="collapsed"
 )
 
-# ── Elite SaaS Championship CSS ───────────────────────────────────────────────
-st.markdown("""
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600;700&display=swap');
-
-  /* Global Smooth Scrolling & Dynamic Shifting Ambient Background */
-  html { scroll-behavior: smooth; }
-  
-  @keyframes meshShift {
-    0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%; }
-    50% { background-position: 100% 100%, 80% 20%, 20% 80%, 0% 0%; }
-    100% { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%; }
-  }
-  
-  [data-testid="stAppViewContainer"] {
-    background-color: #030712;
-    background-image: 
-      radial-gradient(circle at 15% 25%, rgba(15, 23, 42, 0.95) 0px, transparent 60%),
-      radial-gradient(circle at 85% 75%, rgba(20, 30, 48, 0.9) 0px, transparent 60%),
-      radial-gradient(circle at 50% 10%, rgba(0, 229, 255, 0.08) 0px, transparent 70%),
-      radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
-    background-size: 180% 180%, 180% 180%, 100% 100%, 26px 26px;
-    animation: meshShift 22s ease-in-out infinite;
-    color: #f8fafc;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-  [data-testid="stHeader"] { background: transparent; }
-  .block-container {
-    padding: 2rem 3.5rem 3rem 3.5rem;
-    max-width: 1460px;
-  }
-
-  /* Championship Typography Hierarchy */
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif !important;
-    letter-spacing: -0.8px;
-  }
-  p, span, div, label, li {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-  code, .mono {
-    font-family: 'Fira Code', monospace !important;
-  }
-
-  /* Enterprise Bento & 3D Tilt Glassmorphism Utilities */
-  .bento-card {
-    background: rgba(11, 16, 27, 0.72);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 2.2rem;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    height: 100%;
-    box-sizing: border-box;
-  }
-  .bento-card:hover {
-    border-color: rgba(0, 229, 255, 0.55);
-    transform: translateY(-8px) scale(1.015);
-    box-shadow: 0 22px 50px rgba(0, 229, 255, 0.18), inset 0 0 20px rgba(0, 229, 255, 0.05);
-  }
-  .bento-glow::after {
-    content: '';
-    position: absolute;
-    top: -40%; right: -30%;
-    width: 280px; height: 280px;
-    background: radial-gradient(circle, rgba(0, 229, 255, 0.18) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  /* Style Streamlit Native Containers as Palantir Bento Cards */
-  div[data-testid="stVerticalBlockBorderWrapper"] > div {
-    background: rgba(11, 16, 27, 0.72) !important;
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 20px !important;
-    padding: 1.6rem !important;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
-    transition: all 0.35s ease !important;
-  }
-  div[data-testid="stVerticalBlockBorderWrapper"] > div:hover {
-    border-color: rgba(0, 229, 255, 0.5) !important;
-    box-shadow: 0 20px 45px rgba(0, 229, 255, 0.15) !important;
-  }
-
-  /* Status Pill & Typewriting Wipe Reveal */
-  .status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(0, 229, 255, 0.08);
-    border: 1px solid rgba(0, 229, 255, 0.3);
-    padding: 8px 20px;
-    border-radius: 30px;
-    font-size: 0.75rem;
-    font-weight: 800;
-    letter-spacing: 1.8px;
-    color: #00e5ff;
-    text-transform: uppercase;
-  }
-  .pulse-dot {
-    width: 8px; height: 8px;
-    background-color: #00e5ff;
-    border-radius: 50%;
-    box-shadow: 0 0 12px #00e5ff;
-    animation: dotPulse 1.8s infinite ease-in-out;
-  }
-  @keyframes dotPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.3; transform: scale(0.7); }
-  }
-
-  /* Subheading Typing Wipe Reveal */
-  .typewriter-wipe {
-    display: inline-block;
-    clip-path: inset(0 100% 0 0);
-    animation: typeWipe 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-  }
-  .typewriter-wipe-delay {
-    display: inline-block;
-    clip-path: inset(0 100% 0 0);
-    animation: typeWipe 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) 1.2s forwards;
-  }
-  @keyframes typeWipe {
-    0% { clip-path: inset(0 100% 0 0); }
-    100% { clip-path: inset(0 0 0 0); }
-  }
-
-  /* Shimmer Title Animation */
-  .hero-title {
-    font-size: 4.2rem;
-    font-weight: 800;
-    letter-spacing: -2.5px;
-    line-height: 1.1;
-    margin: 1.6rem 0;
-    background: linear-gradient(270deg, #ffffff 0%, #67e8f9 40%, #00e5ff 70%, #ffffff 100%);
-    background-size: 300% 300%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmerTitle 8s ease infinite;
-  }
-  @keyframes shimmerTitle {
-    0% { background-position: 0% 50% }
-    50% { background-position: 100% 50% }
-    100% { background-position: 0% 50% }
-  }
-
-  /* Animations */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .animate-fade {
-    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  /* Landing Hero */
-  .hero-box {
-    text-align: center;
-    padding: 4.5rem 1rem 3.5rem 1rem;
-  }
-
-  /* KPI Grid */
-  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 2rem; }
-  .kpi-card {
-    background: rgba(11, 16, 27, 0.85);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 1.5rem 1.7rem;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  .kpi-card:hover {
-    border-color: rgba(0, 229, 255, 0.5);
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0, 229, 255, 0.12);
-  }
-  .kpi-card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 3px;
-    background: linear-gradient(90deg, #00e5ff, transparent);
-  }
-  .kpi-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 1.5px;
-               color: #94a3b8; text-transform: uppercase; margin-bottom: 0.5rem; }
-  .kpi-value { font-size: 2.3rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fira Code', monospace !important; }
-  .kpi-sub   { font-size: 0.78rem; color: #64748b; margin-top: 0.4rem; font-weight: 500; }
-  .kpi-teal  { color: #00e5ff; text-shadow: 0 0 16px rgba(0,229,255,0.45); }
-  .kpi-blue  { color: #38bdf8; }
-  .kpi-purple{ color: #c084fc; }
-  .kpi-white { color: #f8fafc; font-family: 'Space Grotesk', sans-serif !important; font-weight: 800; }
-
-  /* Section Header */
-  .sec-title {
-    font-size: 0.74rem; font-weight: 800; letter-spacing: 2px;
-    color: #00e5ff; text-transform: uppercase; margin-bottom: 0.8rem;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .sec-title::before { content: '▫'; color: #00e5ff; }
-
-  /* Method Row */
-  .method-row {
-    display: flex; align-items: center; gap: 14px;
-    background: rgba(11, 16, 27, 0.6); border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px; padding: 0.9rem 1.4rem; margin-bottom: 10px;
-    transition: all 0.25s ease;
-  }
-  .method-row:hover {
-    background: rgba(11, 16, 27, 0.95);
-    border-color: rgba(0, 229, 255, 0.35);
-    transform: translateX(4px);
-  }
-  .method-name { font-weight: 800; color: #f1f5f9; width: 55px; font-size: 0.95rem; font-family: 'Fira Code', monospace !important; }
-  .method-bar-wrap { flex: 1; background: #1e293b; border-radius: 6px; height: 10px; overflow: hidden; }
-  .method-bar { height: 10px; border-radius: 6px; }
-  .method-pct { font-size: 0.9rem; font-weight: 800; width: 60px; text-align: right; font-family: 'Fira Code', monospace !important; }
-  .method-note { font-size: 0.75rem; color: #64748b; width: 170px; }
-
-  /* Streamlit SaaS Buttons */
-  div.stButton > button[kind="primary"] {
-    background: #00e5ff !important;
-    color: #030712 !important;
-    font-family: 'Space Grotesk', sans-serif !important;
-    font-weight: 800 !important;
-    font-size: 1.1rem !important;
-    letter-spacing: 1px !important;
-    padding: 0.9rem 3.5rem !important;
-    border-radius: 100px !important;
-    border: none !important;
-    box-shadow: 0 0 35px rgba(0, 229, 255, 0.45) !important;
-    text-transform: uppercase !important;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-  }
-  div.stButton > button[kind="primary"]:hover {
-    transform: translateY(-3px) scale(1.04) !important;
-    background: #67e8f9 !important;
-    box-shadow: 0 0 55px rgba(0, 229, 255, 0.75) !important;
-  }
-
-  div.stButton > button[kind="secondary"] {
-    background: rgba(255, 255, 255, 0.04) !important;
-    color: #cbd5e1 !important;
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-weight: 600 !important;
-    font-size: 0.88rem !important;
-    border: 1px solid rgba(255, 255, 255, 0.14) !important;
-    border-radius: 10px !important;
-    padding: 0.5rem 1.4rem !important;
-    transition: all 0.2s ease !important;
-  }
-  div.stButton > button[kind="secondary"]:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: #fff !important;
-    border-color: rgba(0, 229, 255, 0.5) !important;
-  }
-
-  /* Streamlit Tabs Override */
-  .stTabs [data-baseweb="tab-list"] {
-    gap: 14px;
-    background-color: rgba(11, 16, 27, 0.75);
-    padding: 8px 14px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .stTabs [data-baseweb="tab"] {
-    height: 46px;
-    border-radius: 10px;
-    color: #94a3b8;
-    font-weight: 700;
-    padding: 0 24px;
-    font-family: 'Space Grotesk', sans-serif;
-  }
-  .stTabs [aria-selected="true"] {
-    background: rgba(0, 229, 255, 0.14) !important;
-    color: #00e5ff !important;
-    border: 1px solid rgba(0, 229, 255, 0.4) !important;
-  }
-  .stTabs [data-baseweb="tab-highlight"] {
-    background-color: transparent !important;
-  }
-
-  /* Streamlit Multiselect Filter Tags Theme Override */
-  span[data-baseweb="tag"] {
-    background: rgba(0, 229, 255, 0.12) !important;
-    border: 1px solid rgba(0, 229, 255, 0.4) !important;
-    color: #00e5ff !important;
-    border-radius: 8px !important;
-    padding: 2px 8px !important;
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-weight: 700 !important;
-    box-shadow: 0 0 12px rgba(0, 229, 255, 0.15) !important;
-  }
-  span[data-baseweb="tag"] span[role="button"] {
-    color: #00e5ff !important;
-  }
-  span[data-baseweb="tag"]:hover {
-    background: rgba(0, 229, 255, 0.25) !important;
-    box-shadow: 0 0 20px rgba(0, 229, 255, 0.35) !important;
-  }
-
-  /* Divider */
-  .divider { border: none; border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 2.2rem 0; }
-
-  /* Hide Streamlit branding */
-  #MainMenu, footer, header { visibility: hidden; }
-  [data-testid="stSidebar"] { display: none; }
-</style>
-""", unsafe_allow_html=True)
-
-# ── Data ──────────────────────────────────────────────────────────────────────
 OUTPUT_DIR = Path(__file__).parent / "outputs"
 
-@st.cache_data
-def load():
-    dt   = pd.read_csv(OUTPUT_DIR / "decision_table.csv", parse_dates=["date"])
-    smry = json.loads((OUTPUT_DIR / "summary.json").read_text()) if (OUTPUT_DIR / "summary.json").exists() else {}
-    return dt, smry
+# ── Bulletproof HTML Rendering Helper ─────────────────────────────────────────
+def render_html(html_content):
+    clean_lines = [line.lstrip() for line in str(html_content).split("\n")]
+    st.markdown("\n".join(clean_lines), unsafe_allow_html=True)
 
-if not (OUTPUT_DIR / "decision_table.csv").exists():
-    st.error("Run `python main.py` first to generate outputs.")
+# ── Load Pipeline Outputs (Strictly Unchanged Backend Data) ───────────────────
+@st.cache_data
+def load_data():
+    dt_path  = OUTPUT_DIR / "decision_table.csv"
+    sum_path = OUTPUT_DIR / "summary.json"
+    if not dt_path.exists():
+        return None, None
+    df = pd.read_csv(dt_path, parse_dates=["date"])
+    smry = json.loads(sum_path.read_text()) if sum_path.exists() else {}
+    return df, smry
+
+df, summary = load_data()
+
+if df is None:
+    st.error("🚨 Critical Error: No pipeline outputs found in `outputs/`. Please run `python main.py` first.")
     st.stop()
 
-df, S = load()
+S = summary
+# Benchmark Figures
+stockout_red = summary.get("stockout_reduction_volatile_pct", 66.7)
+aci_vol_cov  = summary.get("ACI_cov_volatile", 0.9087) * 100
+excess_freed = summary.get("excess_change_volatile_pct", 59.5)
 
-# ── Session State for Portal Toggle ───────────────────────────────────────────
-if "started" not in st.session_state:
-    st.session_state.started = False
+# ── State Management ──────────────────────────────────────────────────────────
+if "app_mode" not in st.session_state:
+    st.session_state.app_mode = "landing"
 
-def do_rerun():
-    try:
-        st.rerun()
-    except AttributeError:
-        st.experimental_rerun()
+# ── Combined CSS: Reference Landing Page + Aurora Inside Platform ─────────────
+render_html("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# VIEW 1 — SaaS ENTERPRISE LANDING PAGE
-# ═══════════════════════════════════════════════════════════════════════════════
-if not st.session_state.started:
-    # Top Navbar
-    st.markdown("""
-    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08);">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <div style="width: 38px; height: 38px; border-radius: 12px; background: rgba(0, 229, 255, 0.14); border: 1px solid rgba(0, 229, 255, 0.35); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #00e5ff; font-weight: 800;">◈</div>
-        <span style="font-family: 'Space Grotesk', sans-serif; font-size: 1.55rem; font-weight: 800; color: #fff; letter-spacing: -0.8px;">SupplyShield <span style="color:#00e5ff;">AI</span></span>
-      </div>
-      <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: #94a3b8;">
-        <span class="pulse-dot"></span> SYSTEM STATUS: 100% CALIBRATED
-      </div>
+/* Base App Theme */
+.stApp {
+    background-color: #030508 !important;
+    background-image: 
+        linear-gradient(to right, rgba(0, 242, 254, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 242, 254, 0.04) 1px, transparent 1px) !important;
+    background-size: 36px 36px !important;
+    color: #94a3b8 !important;
+    font-family: 'Plus Jakarta Sans', 'Outfit', -apple-system, sans-serif !important;
+}
+
+/* Extinguish Default Streamlit Chrome */
+section[data-testid="stSidebar"] {display: none !important;}
+header[data-testid="stHeader"] {display: none !important;}
+footer {display: none !important;}
+#MainMenu {display: none !important;}
+.block-container {
+    padding-top: 1rem !important;
+    padding-bottom: 4rem !important;
+    max-width: 96% !important;
+}
+
+/* Crisp Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    letter-spacing: -0.025em !important;
+    margin: 0 !important;
+}
+
+/* Enter Platform Button Override (Landing Page) */
+div[data-testid="stButton"] button[kind="primaryFormSubmit"],
+div[data-testid="stButton"] button[kind="primary"] {
+    background: linear-gradient(135deg, #00f2fe 0%, #0284c7 100%) !important;
+    color: #030508 !important;
+    font-weight: 900 !important;
+    font-size: 15px !important;
+    letter-spacing: 1px !important;
+    padding: 16px 32px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    box-shadow: 0 0 35px rgba(0, 242, 254, 0.45) !important;
+    transition: all 0.25s ease !important;
+}
+div[data-testid="stButton"] button[kind="primary"]:hover {
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 0 0 50px rgba(0, 242, 254, 0.8) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Secondary Buttons Inside Platform */
+div[data-testid="stButton"] button {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #e2e8f0 !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    padding: 12px 20px !important;
+    transition: all 0.2s ease !important;
+}
+div[data-testid="stButton"] button:hover {
+    background: rgba(56, 189, 248, 0.15) !important;
+    border-color: #38bdf8 !important;
+    color: #ffffff !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Inside Platform Aurora Cards */
+.aurora-card {
+    background: rgba(17, 24, 39, 0.75);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    padding: 26px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+.aurora-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #00f2fe 0%, #4facfe 50%, #8b5cf6 100%);
+    opacity: 0.8;
+}
+
+/* Inside Platform Stat Pods */
+.pod-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 28px;
+}
+.stat-pod {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 20px 24px;
+    transition: all 0.25s ease;
+    position: relative;
+}
+.stat-pod:hover { transform: translateY(-3px); border-color: rgba(56, 189, 248, 0.5); }
+.pod-lbl { font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px; }
+.pod-val { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 900; color: #ffffff; line-height: 1; margin-bottom: 8px; }
+.pod-sub { font-size: 11px; color: #94a3b8; font-weight: 600; }
+
+/* Cyber Glowing Pills */
+.cyber-pill {
+    padding: 5px 12px;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.pill-cyan { background: rgba(14,165,233,0.15); color: #38bdf8; border: 1px solid rgba(14,165,233,0.4); }
+.pill-red { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
+.pill-gold { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); }
+
+/* Streamlit Tabs Override */
+div[data-baseweb="tab-list"] {
+    background: rgba(15, 23, 42, 0.8) !important;
+    backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 18px !important;
+    padding: 8px !important;
+    gap: 10px !important;
+    margin-bottom: 28px !important;
+}
+div[data-baseweb="tab"] {
+    background: transparent !important;
+    border-radius: 12px !important;
+    color: #64748b !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    padding: 10px 24px !important;
+}
+div[data-baseweb="tab"][aria-selected="true"] {
+    background: linear-gradient(135deg, rgba(14,165,233,0.2) 0%, rgba(139,92,246,0.2) 100%) !important;
+    color: #38bdf8 !important;
+    border: 1px solid rgba(56, 189, 248, 0.4) !important;
+    box-shadow: 0 4px 25px rgba(56, 189, 248, 0.25) !important;
+}
+
+/* Pristine Inside Page Classes */
+.divider { border: 0; height: 1px; background: rgba(255,255,255,0.08); margin: 2rem 0; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 2rem; }
+.kpi-card {
+    background: rgba(20, 30, 48, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+.kpi-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 1.5px; color: #64748b; text-transform: uppercase; margin-bottom: 8px; }
+.kpi-value { font-size: 2.3rem; font-weight: 800; letter-spacing: -1px; font-family: 'JetBrains Mono', monospace !important; }
+.kpi-sub   { font-size: 0.78rem; color: #64748b; margin-top: 0.4rem; font-weight: 500; }
+.kpi-teal  { color: #00e5ff; text-shadow: 0 0 16px rgba(0,229,255,0.45); }
+.kpi-blue  { color: #38bdf8; }
+.kpi-purple{ color: #c084fc; }
+.kpi-white { color: #f8fafc; font-weight: 800; }
+.sec-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.sec-title::before { content: '◈'; color: #00e5ff; }
+.method-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 16px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+.method-name { font-weight: 800; color: #f1f5f9; width: 55px; font-size: 0.95rem; font-family: 'JetBrains Mono', monospace !important; }
+.method-bar-wrap { flex: 1; background: #1e293b; border-radius: 6px; height: 10px; overflow: hidden; }
+.method-bar { height: 10px; border-radius: 6px; }
+.method-pct { font-size: 0.9rem; font-weight: 800; width: 60px; text-align: right; font-family: 'JetBrains Mono', monospace !important; }
+.method-note { font-size: 0.75rem; color: #64748b; width: 170px; }
+
+/* ── Smooth Scrolling & Interactive Hover Effects ──────────────────────────── */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Entrance Animations */
+.kpi-card, .method-row, .aurora-card, .stat-pod, div[data-testid="stVerticalBlockBorderWrapper"], div[data-testid="stDataFrame"] {
+    animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Interactive Hover Glows */
+.kpi-card:hover, .aurora-card:hover, .stat-pod:hover, div[data-testid="stVerticalBlockBorderWrapper"]:hover {
+    transform: translateY(-5px) scale(1.01) !important;
+    border-color: rgba(0, 242, 254, 0.65) !important;
+    box-shadow: 0 16px 38px rgba(0, 242, 254, 0.18) !important;
+}
+
+.method-row:hover {
+    transform: translateX(8px) !important;
+    border-color: rgba(0, 242, 254, 0.55) !important;
+    background: rgba(15, 23, 42, 0.95) !important;
+    box-shadow: -4px 4px 18px rgba(0, 242, 254, 0.12) !important;
+}
+</style>
+""")
+
+
+# ==============================================================================
+# SCREEN 1: 🌐 LANDING PAGE (EXACT DESIGN INSPIRED BY REFERENCE SCREENSHOTS)
+# ==============================================================================
+if st.session_state.app_mode == "landing":
+    # Top Navbar (Exact match to Screenshot 1)
+    render_html("""
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0 40px 0;">
+       <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:22px; height:22px; background:#00f2fe; transform:rotate(45deg); display:flex; align-items:center; justify-content:center; box-shadow:0 0 15px rgba(0,242,254,0.6);">
+             <div style="width:10px; height:10px; background:#030508;"></div>
+          </div>
+          <span style="font-weight:900; font-size:20px; color:#ffffff; letter-spacing:1px;">SUPPLYSHIELD <span style="color:#00f2fe;">AI</span></span>
+       </div>
+       <div style="display:flex; align-items:center; gap:20px; font-family:'JetBrains Mono', monospace; font-size:11px;">
+          <div style="display:flex; align-items:center;">
+             <span style="display:inline-block; width:8px; height:8px; background:#00f2fe; border-radius:50%; margin-right:8px; box-shadow:0 0 10px #00f2fe;"></span>
+             <span style="color:#718096;">SYSTEM STATUS:</span> <span style="color:#cbd5e0; font-weight:bold; margin-left:6px;">100% CALIBRATED</span>
+          </div>
+          <span style="border:1px solid rgba(0,242,254,0.4); color:#00f2fe; padding:6px 14px; border-radius:4px; font-weight:bold; letter-spacing:1px; background:rgba(0,242,254,0.05);">AUTH_ACCESS</span>
+       </div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-    # Hero Section
-    st.markdown("""
-    <div class="hero-box animate-fade">
-      <div class="status-pill">
-        <span class="pulse-dot"></span> PROBABILISTIC SUPPLY CHAIN RISK PLATFORM
-      </div>
-      <h1 class="hero-title">
-        Calibrated Risk Triage<br>for Enterprise Supply Chains
-      </h1>
-      <div style="font-size: 1.3rem; color: #94a3b8; max-width: 820px; margin: 0 auto 2.8rem auto; line-height: 1.8; font-weight: 400;">
-        <div class="typewriter-wipe">
-          Traditional point forecasts trap inventory teams into <strong style="color:#f87171;">Catastrophic False Confidence</strong>.
-        </div><br>
-        <div class="typewriter-wipe-delay">
-          SupplyShield AI transforms deep variance into <strong style="color:#00e5ff; text-shadow:0 0 15px rgba(0,229,255,0.4);">Bulletproof Safety Stock Directives</strong>.
-        </div>
-      </div>
+    # Centered Pill Badge
+    render_html("""
+    <div style="text-align:center; margin-bottom:28px;">
+       <span style="border:1px solid rgba(0,242,254,0.35); background:rgba(0,242,254,0.06); color:#00f2fe; padding:6px 18px; border-radius:999px; font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700; letter-spacing:2.5px; box-shadow:0 0 25px rgba(0,242,254,0.15);">
+          PROBABILISTIC SUPPLY CHAIN RISK PLATFORM
+       </span>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-    # CTA Action Button
-    _, c_btn, _ = st.columns([1, 1.3, 1])
-    with c_btn:
-        if st.button("ENTER PLATFORM →", type="primary", use_container_width=True):
-            st.session_state.started = True
-            do_rerun()
+    # Hero Title & Subtitle
+    render_html("""
+    <h1 style="text-align:center; font-size:58px; font-weight:900; color:#ffffff; line-height:1.1; margin-bottom:24px; letter-spacing:-1px;">
+       Calibrated Risk Triage for<br>Enterprise Supply Chains
+    </h1>
+    <p style="text-align:center; font-size:18px; color:#a0aec0; max-width:760px; margin:0 auto 36px auto; line-height:1.6;">
+       Traditional point forecasts trap inventory teams into <strong style="color:#ff4b4b; font-weight:700;">Catastrophic False Confidence</strong>. SupplyShield AI transforms deep variance into <strong style="color:#00f2fe; font-weight:700;">Bulletproof Safety Stock Directives</strong>.
+    </p>
+    """)
 
-    # Enterprise Telemetry Proof Strip
-    st.markdown("""
-    <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:52px; padding: 2.4rem 0; border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06); margin: 3.8rem 0 2.8rem 0;">
-      <div style="text-align:center;">
-        <div style="font-family:'Fira Code',monospace; font-size:1.7rem; font-weight:800; color:#00e5ff;">90.9%</div>
-        <div style="font-size:0.76rem; color:#64748b; letter-spacing:1px; text-transform:uppercase; margin-top:6px; font-weight:700;">Volatile Coverage</div>
-      </div>
-      <div style="width:1px; background:rgba(255,255,255,0.08); display:none; @media(min-width:768px){display:block;}"></div>
-      <div style="text-align:center;">
-        <div style="font-family:'Fira Code',monospace; font-size:1.7rem; font-weight:800; color:#38bdf8;">+66.7%</div>
-        <div style="font-size:0.76rem; color:#64748b; letter-spacing:1px; text-transform:uppercase; margin-top:6px; font-weight:700;">Stockout Reduction</div>
-      </div>
-      <div style="width:1px; background:rgba(255,255,255,0.08);"></div>
-      <div style="text-align:center;">
-        <div style="font-family:'Fira Code',monospace; font-size:1.7rem; font-weight:800; color:#c084fc;">+59.5%</div>
-        <div style="font-size:0.76rem; color:#64748b; letter-spacing:1px; text-transform:uppercase; margin-top:6px; font-weight:700;">Capital Released</div>
-      </div>
-      <div style="width:1px; background:rgba(255,255,255,0.08);"></div>
-      <div style="text-align:center;">
-        <div style="font-family:'Fira Code',monospace; font-size:1.7rem; font-weight:800; color:#f8fafc;">30,490</div>
-        <div style="font-size:0.76rem; color:#64748b; letter-spacing:1px; text-transform:uppercase; margin-top:6px; font-weight:700;">Benchmark SKUs</div>
-      </div>
+    # Centered Call-to-Action Button
+    b_col1, b_col2, b_col3 = st.columns([1.2, 1, 1.2])
+    with b_col2:
+        if st.button("ENTER PLATFORM ➔", type="primary", use_container_width=True):
+            st.session_state.app_mode = "platform"
+            st.rerun()
+
+    # Metrics Strip (Exact match to Screenshot 1 bottom box)
+    render_html(f"""
+    <div style="margin:48px 0 32px 0; border:1px solid rgba(255,255,255,0.1); background:rgba(10,15,26,0.65); backdrop-filter:blur(16px); border-radius:12px; display:grid; grid-template-columns:repeat(4, 1fr); overflow:hidden;">
+       <div style="padding:28px 20px; text-align:center; border-right:1px solid rgba(255,255,255,0.08);">
+          <div style="font-family:'JetBrains Mono', monospace; font-size:36px; font-weight:900; color:#00f2fe; line-height:1; margin-bottom:8px;">{aci_vol_cov:.1f}%</div>
+          <div style="font-family:'JetBrains Mono', monospace; font-size:11px; color:#718096; letter-spacing:1.5px; font-weight:700;">VOLATILE COVERAGE</div>
+       </div>
+       <div style="padding:28px 20px; text-align:center; border-right:1px solid rgba(255,255,255,0.08);">
+          <div style="font-family:'JetBrains Mono', monospace; font-size:36px; font-weight:900; color:#00f2fe; line-height:1; margin-bottom:8px;">+{stockout_red:.1f}%</div>
+          <div style="font-family:'JetBrains Mono', monospace; font-size:11px; color:#718096; letter-spacing:1.5px; font-weight:700;">STOCKOUT REDUCTION</div>
+       </div>
+       <div style="padding:28px 20px; text-align:center; border-right:1px solid rgba(255,255,255,0.08);">
+          <div style="font-family:'JetBrains Mono', monospace; font-size:36px; font-weight:900; color:#ff4b4b; line-height:1; margin-bottom:8px;">{excess_freed:+.1f}%</div>
+          <div style="font-family:'JetBrains Mono', monospace; font-size:11px; color:#718096; letter-spacing:1.5px; font-weight:700;">CAPITAL RELEASED</div>
+       </div>
+       <div style="padding:28px 20px; text-align:center;">
+          <div style="font-family:'JetBrains Mono', monospace; font-size:36px; font-weight:900; color:#ffffff; line-height:1; margin-bottom:8px;">30,490</div>
+          <div style="font-family:'JetBrains Mono', monospace; font-size:11px; color:#718096; letter-spacing:1.5px; font-weight:700;">BENCHMARK SKUS</div>
+       </div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-    # Scannable Presentation Bento Grid
-    col_b1, col_b2 = st.columns([1.7, 1.3], gap="large")
-    with col_b1:
-        st.markdown("""
-        <div class="bento-card bento-glow">
-          <div style="font-size:0.72rem; font-weight:800; color:#00e5ff; letter-spacing:2px; margin-bottom:1rem;">CORE ARCHITECTURE</div>
-          <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.85rem; font-weight:800; color:#fff; margin-bottom:1.2rem; line-height:1.15;">
-            Adaptive Conformal Inference
-          </h3>
-          <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:2rem; font-size:0.98rem; color:#cbd5e1; line-height:1.5;">
-            <div style="display:flex; gap:12px; align-items:flex-start;">
-              <span style="color:#00e5ff; font-weight:800; font-size:1.1rem;">▪</span>
-              <span><strong>Shock-Responsive Bounds:</strong> Prediction intervals widen automatically during sudden demand surges to shield target service levels.</span>
-            </div>
-            <div style="display:flex; gap:12px; align-items:flex-start;">
-              <span style="color:#00e5ff; font-weight:800; font-size:1.1rem;">▪</span>
-              <span><strong>Gibbs-Candès Physics:</strong> Dynamically adjusts coverage error &alpha;<sub>t</sub> after every single demand observation without assuming stationarity.</span>
-            </div>
-          </div>
-          <div style="display:flex; gap:12px; align-items:center; background:rgba(3,7,18,0.7); padding:14px 20px; border-radius:14px; border:1px solid rgba(0,229,255,0.25);">
-            <span style="font-family:'Fira Code',monospace; color:#00e5ff; font-weight:700; font-size:0.92rem;">&alpha;<sub>t+1</sub> = &alpha;<sub>t</sub> + &gamma;(&alpha; &minus; 1{y<sub>t</sub> &notin; C&#770;<sub>t</sub>})</span>
-            <span style="font-size:0.75rem; color:#64748b; margin-left:auto; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">Update Rule</span>
-          </div>
+    # Feature Cards Section (Exact replicas of Screenshot 2)
+    fc1, fc2 = st.columns(2)
+    with fc1:
+        render_html("""
+        <div style="background:rgba(10,15,26,0.85); border:1px solid rgba(0,242,254,0.22); border-radius:12px; padding:28px; height:100%; position:relative;">
+           <div style="position:absolute; top:20px; right:20px; font-family:'JetBrains Mono', monospace; font-size:10px; color:#4a5568;">MODL_REF_01</div>
+           <div style="display:flex; align-items:center; gap:10px; margin-bottom:24px;">
+              <span style="width:8px; height:8px; background:#00f2fe;"></span>
+              <span style="font-weight:800; font-size:15px; color:#ffffff; letter-spacing:1px;">ADAPTIVE CONFORMAL INFERENCE</span>
+           </div>
+           
+           <div style="margin-bottom:20px;">
+              <div style="display:flex; gap:12px; margin-bottom:16px;">
+                 <span style="font-family:'JetBrains Mono', monospace; color:#00f2fe; font-weight:bold;">[01]</span>
+                 <div>
+                    <div style="font-weight:700; color:#ffffff; font-size:13px;">SHOCK-RESPONSIVE BOUNDS</div>
+                    <div style="font-size:12px; color:#a0aec0; margin-top:4px; line-height:1.5;">Prediction intervals widen automatically during sudden demand surges to shield target service levels.</div>
+                 </div>
+              </div>
+              <div style="display:flex; gap:12px;">
+                 <span style="font-family:'JetBrains Mono', monospace; color:#00f2fe; font-weight:bold;">[02]</span>
+                 <div>
+                    <div style="font-weight:700; color:#ffffff; font-size:13px;">GIBBS-CANDÈS PHYSICS</div>
+                    <div style="font-size:12px; color:#a0aec0; margin-top:4px; line-height:1.5;">Dynamically adjusts coverage error α_t after every single demand observation without assuming stationarity.</div>
+                 </div>
+              </div>
+           </div>
+           
+           <div style="background:#030508; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:16px; font-family:'JetBrains Mono', monospace; margin-top:24px;">
+              <div style="display:flex; justify-content:space-between; font-size:10px; color:#4a5568; margin-bottom:8px;">
+                 <span>UPDATE RULE</span>
+                 <span style="color:#00f2fe;">ACTIVE INFERENCE</span>
+              </div>
+              <div style="font-size:15px; color:#ffffff; font-weight:bold;">
+                 α<sub style="font-size:10px;">t+1</sub> = α<sub style="font-size:10px;">t</sub> + γ(α - 1{y<sub style="font-size:10px;">t</sub> ∉ Ĉ<sub style="font-size:10px;">t</sub>})
+              </div>
+           </div>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
-    with col_b2:
-        st.markdown("""
-        <div class="bento-card">
-          <div style="font-size:0.72rem; font-weight:800; color:#38bdf8; letter-spacing:2px; margin-bottom:1rem;">OPERATIONAL TRIAGE</div>
-          <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.85rem; font-weight:800; color:#fff; margin-bottom:1.2rem; line-height:1.15;">
-            Actionable Risk Protocol
-          </h3>
-          <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:2rem; font-size:0.98rem; color:#cbd5e1; line-height:1.5;">
-            <div style="display:flex; gap:12px; align-items:flex-start;">
-              <span style="color:#38bdf8; font-weight:800; font-size:1.1rem;">▪</span>
-              <span><strong>Floor-Ready Directives:</strong> Translates complex probabilistic variance into transparent warehouse safety buffers.</span>
-            </div>
-            <div style="display:flex; gap:12px; align-items:flex-start;">
-              <span style="color:#38bdf8; font-weight:800; font-size:1.1rem;">▪</span>
-              <span><strong>Automated Escalation:</strong> Flags high-volatility SKUs for immediate procurement override prior to stockouts.</span>
-            </div>
-          </div>
-          <div style="display:flex; flex-direction:column; gap:12px; margin-top:auto;">
-            <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:rgba(248,113,113,0.12); border-left:4px solid #f87171; border-radius:8px; font-size:0.86rem; color:#f87171; font-weight:700;"><span>High Risk Tier</span><span>Escalate Procurement</span></div>
-            <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:rgba(0,229,255,0.12); border-left:4px solid #00e5ff; border-radius:8px; font-size:0.86rem; color:#00e5ff; font-weight:700;"><span>Low Risk Nominal</span><span>Standard Automated Reorder</span></div>
-          </div>
+    with fc2:
+        render_html("""
+        <div style="background:rgba(10,15,26,0.85); border:1px solid rgba(0,242,254,0.22); border-radius:12px; padding:28px; height:100%; position:relative;">
+           <div style="position:absolute; top:20px; right:20px; font-family:'JetBrains Mono', monospace; font-size:10px; color:#4a5568;">EXEC_REF_02</div>
+           <div style="display:flex; align-items:center; gap:10px; margin-bottom:24px;">
+              <span style="width:8px; height:8px; background:#00f2fe;"></span>
+              <span style="font-weight:800; font-size:15px; color:#ffffff; letter-spacing:1px;">ACTIONABLE RISK PROTOCOL</span>
+           </div>
+           
+           <div style="margin-bottom:24px;">
+              <div style="display:flex; gap:12px; margin-bottom:16px;">
+                 <span style="font-family:'JetBrains Mono', monospace; color:#00f2fe; font-weight:bold;">[A]</span>
+                 <div>
+                    <div style="font-weight:700; color:#ffffff; font-size:13px;">FLOOR-READY DIRECTIVES</div>
+                    <div style="font-size:12px; color:#a0aec0; margin-top:4px; line-height:1.5;">Translates complex probabilistic variance into transparent warehouse safety buffers.</div>
+                 </div>
+              </div>
+              <div style="display:flex; gap:12px;">
+                 <span style="font-family:'JetBrains Mono', monospace; color:#00f2fe; font-weight:bold;">[B]</span>
+                 <div>
+                    <div style="font-weight:700; color:#ffffff; font-size:13px;">AUTOMATED ESCALATION</div>
+                    <div style="font-size:12px; color:#a0aec0; margin-top:4px; line-height:1.5;">Flags high-volatility SKUs for immediate procurement override prior to stockouts.</div>
+                 </div>
+              </div>
+           </div>
+           
+           <div style="display:flex; flex-direction:column; gap:10px; font-family:'JetBrains Mono', monospace; font-size:12px;">
+              <div style="display:flex; justify-content:space-between; padding:12px 16px; background:rgba(255,75,75,0.06); border:1px solid rgba(255,75,75,0.35); border-radius:6px;">
+                 <span style="color:#ff4b4b; font-weight:bold;">HIGH RISK TIER</span>
+                 <span style="color:#ff4b4b;">Escalate Procurement</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding:12px 16px; background:rgba(0,242,254,0.06); border:1px solid rgba(0,242,254,0.35); border-radius:6px;">
+                 <span style="color:#00f2fe; font-weight:bold;">LOW RISK NOMINAL</span>
+                 <span style="color:#00f2fe;">Standard Automated Reorder</span>
+              </div>
+           </div>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
-    st.markdown('<div style="margin-top: 1.5rem;"></div>', unsafe_allow_html=True)
-
-    # Wide Bottom Bento Card
-    st.markdown("""
-    <div class="bento-card" style="padding: 2.5rem;">
-      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:28px;">
-        <div style="max-width: 760px;">
-          <div style="font-size:0.72rem; font-weight:800; color:#c084fc; letter-spacing:2px; margin-bottom:0.8rem;">INVENTORY COUPLING THEORY</div>
-          <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.8rem; font-weight:800; color:#fff; margin-bottom:1rem;">
-            Newsvendor Safety Stock Derivation
-          </h3>
-          <div style="font-size:0.98rem; color:#cbd5e1; line-height:1.6;">
-            Replaces arbitrary heuristic multipliers by coupling safety stock buffers directly to conformal interval widths via classical newsvendor inventory theory: <span style="font-family:'Fira Code',monospace; color:#00e5ff; background:rgba(0,229,255,0.1); padding:4px 10px; border-radius:6px; font-weight:700;">SS = z<sub>SL</sub> &middot; &sigma;&#770;<sub>t</sub> &middot; &radic;L</span>. Mathematically shields service levels while eliminating trapped capital.
+    # Bottom Full Width Card (Exact match to Screenshot 2 bottom box)
+    render_html("""
+    <div style="margin-top:20px; background:rgba(10,15,26,0.85); border:1px solid rgba(0,242,254,0.22); border-radius:12px; padding:32px; display:flex; justify-content:space-between; align-items:center; gap:40px; flex-wrap:wrap;">
+       <div style="flex:2; min-width:320px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+             <span style="width:8px; height:8px; background:#00f2fe;"></span>
+             <span style="font-weight:800; font-size:15px; color:#ffffff; letter-spacing:1px;">NEWSVENDOR SAFETY STOCK DERIVATION</span>
           </div>
-        </div>
-        <div style="display:flex; gap:40px; align-items:center;">
-          <div style="text-align:right;">
-            <div style="font-size:0.75rem; color:#64748b; font-weight:800; text-transform:uppercase; letter-spacing:1px;">Evaluation Benchmark</div>
-            <div style="font-size:1.3rem; font-weight:800; color:#fff; font-family:'Space Grotesk',sans-serif; margin-top:4px;">Walmart M5 Retail</div>
+          <p style="font-size:13px; color:#a0aec0; line-height:1.6; margin-bottom:24px; max-width:640px;">
+             Replaces arbitrary heuristic multipliers by coupling safety stock buffers directly to conformal interval widths via classical newsvendor inventory theory. Mathematically shields service levels while eliminating trapped capital.
+          </p>
+          <div style="display:inline-block; background:#030508; border:1px solid rgba(0,242,254,0.35); padding:12px 20px; border-radius:6px; font-family:'JetBrains Mono', monospace; font-size:16px; font-weight:bold; color:#a0aec0;">
+             SS = <span style="color:#00f2fe;">z_SL</span> · <span style="color:#00f2fe;">σ̂_t</span> · √L
           </div>
-          <div style="width:1px; height:48px; background:rgba(255,255,255,0.1);"></div>
-          <div style="text-align:right;">
-            <div style="font-size:0.75rem; color:#64748b; font-weight:800; text-transform:uppercase; letter-spacing:1px;">Base Model Engine</div>
-            <div style="font-size:1.3rem; font-weight:800; color:#00e5ff; font-family:'Space Grotesk',sans-serif; margin-top:4px;">LightGBM Quantile</div>
+       </div>
+       
+       <div style="flex:1; min-width:240px; font-family:'JetBrains Mono', monospace; font-size:12px; border-left:1px solid rgba(255,255,255,0.08); padding-left:32px;">
+          <div style="color:#4a5568; font-size:10px; margin-bottom:6px;">EVALUATION BENCHMARK</div>
+          <div style="color:#ffffff; font-weight:bold; font-size:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px; margin-bottom:16px;">Walmart M5 Retail</div>
+          
+          <div style="color:#4a5568; font-size:10px; margin-bottom:6px;">BASE MODEL ENGINE</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; color:#00f2fe; font-weight:bold; font-size:15px;">
+             <span>LightGBM Quantile</span>
+             <span style="width:6px; height:6px; background:#00f2fe; border-radius:50%; box-shadow:0 0 8px #00f2fe;"></span>
           </div>
-        </div>
-      </div>
+       </div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-    # Footer
-    st.markdown("""
-    <div style="text-align:center; color:#475569; font-size:0.8rem; margin-top:4.5rem; padding-top:1.8rem; border-top:1px solid rgba(255,255,255,0.06);">
-      <strong>SupplyShield AI Enterprise</strong> &nbsp;·&nbsp; Adaptive Conformal Inference Architecture (Gibbs &amp; Candès, 2022) &nbsp;·&nbsp;
-      Probabilistic Demand Risk Engine &nbsp;·&nbsp; Evaluated on Walmart M5 Benchmark
+    render_html("""
+    <div style="text-align:center; margin-top:40px; font-family:'JetBrains Mono', monospace; font-size:11px; color:#4a5568;">
+       SUPPLYSHIELD AI // PROBABILISTIC INVENTORY COMMAND SYSTEM
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# VIEW 2 — ENTERPRISE RISK COMMAND CENTER (DASHBOARD)
-# ═══════════════════════════════════════════════════════════════════════════════
-else:
-    # ── Top Dashboard Header ──────────────────────────────────────────────────
-    h_left, h_right = st.columns([4, 1])
-    with h_left:
-        st.markdown("""
-        <div style="display: flex; align-items: center; gap: 14px; padding-bottom: 0.2rem;">
-          <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(0, 229, 255, 0.14); border: 1px solid rgba(0, 229, 255, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; color: #00e5ff; font-weight: 800;">◈</div>
-          <div>
-            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.55rem; font-weight: 800; color: #fff; letter-spacing: -0.8px; line-height: 1.1;">SupplyShield <span style="color:#00e5ff;">AI</span></div>
-            <div style="font-size: 0.74rem; color: #64748b; font-weight: 800; letter-spacing: 1.5px;">ENTERPRISE RISK PLATFORM &nbsp;·&nbsp; LIVE TRIAGE</div>
-          </div>
+
+# ==============================================================================
+# SCREEN 2: ⚡ INSIDE PLATFORM (BROUGHT BACK 100% AS IT WAS BEFORE PREVIOUS EDIT)
+# ==============================================================================
+elif st.session_state.app_mode == "platform":
+    # Command Center Header (Brought back exactly as it was)
+    pc1, pc2 = st.columns([4, 1])
+    with pc1:
+        render_html("""
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
+           <span style="font-size:26px;">🛡️</span>
+           <span style="font-weight:900; font-size:18px; color:#ffffff; letter-spacing:0.5px;">SUPPLYSHIELD COMMAND PROD</span>
+           <span style="color:#334155;">/</span>
+           <span style="font-size:14px; color:#38bdf8; font-weight:700;">Interactive Newsvendor Terminal</span>
         </div>
-        """, unsafe_allow_html=True)
-    with h_right:
-        st.markdown('<div style="text-align: right; padding-top: 8px;">', unsafe_allow_html=True)
-        if st.button("← Portal Home", type="secondary", use_container_width=True):
-            st.session_state.started = False
-            do_rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        """)
+    with pc2:
+        if st.button("⬅ Return to Keynote Landing", use_container_width=True):
+            st.session_state.app_mode = "landing"
+            st.session_state.po_dispatched = False
+            st.rerun()
 
-    st.markdown('<hr class="divider" style="margin: 1.2rem 0 2rem 0;">', unsafe_allow_html=True)
 
     # ── KPI Bar ───────────────────────────────────────────────────────────────
     aci_v    = S.get("ACI_cov_volatile",  0.909)
@@ -712,58 +671,47 @@ else:
     # TAB 2 — Calibration Evidence
     # ═══════════════════════════════════════════════════════════════════════════
     with tab2:
-        st.markdown('<div class="sec-title">Scientific Evidence · ACI vs Static Methods</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sec-title">Scientific Evidence · Interactive ACI Audit Platform</div>', unsafe_allow_html=True)
 
         img_col1, img_col2 = st.columns(2, gap="large")
 
         with img_col1:
             with st.container(border=True):
                 st.markdown("**Coverage by Method and Demand Regime**")
-                st.caption("ACI uniquely hits the 90% target during volatile demand. "
-                           "QR and SCP over-cover, wasting capital on excess inventory.")
+                st.caption("Hover over bars for data. ACI uniquely hits the 90% target during volatile demand. QR and SCP over-cover.")
 
-                methods_all   = {
-                    "QR":  (S.get("QR_cov_all",0.944),  S.get("QR_cov_volatile",0.940)),
-                    "SCP": (S.get("SCP_cov_all",0.919),  S.get("SCP_cov_volatile",0.941)),
-                    "ACI": (S.get("ACI_cov_all",0.890),  S.get("ACI_cov_volatile",0.909)),
+                methods_all = {
+                    "QR":  (S.get("QR_cov_all",0.944)*100,  S.get("QR_cov_volatile",0.940)*100),
+                    "SCP": (S.get("SCP_cov_all",0.919)*100,  S.get("SCP_cov_volatile",0.941)*100),
+                    "ACI": (S.get("ACI_cov_all",0.890)*100,  S.get("ACI_cov_volatile",0.909)*100),
                 }
-
-                fig, ax = plt.subplots(figsize=(6, 3.5))
-                fig.patch.set_facecolor("#0b101b")
-                ax.set_facecolor("#0b101b")
-
-                x     = np.arange(3)
                 names = list(methods_all.keys())
-                all_c = [methods_all[m][0]*100 for m in names]
-                vol_c = [methods_all[m][1]*100 for m in names]
-                colors_m = ["#38bdf8","#818cf8","#00e5ff"]
+                overall = [methods_all[m][0] for m in names]
+                volatile = [methods_all[m][1] for m in names]
 
-                bars1 = ax.bar(x - 0.2, all_c, 0.35, label="Overall", alpha=0.7, color=colors_m)
-                bars2 = ax.bar(x + 0.2, vol_c, 0.35, label="Volatile periods", color=colors_m)
+                fig1 = go.Figure()
+                fig1.add_trace(go.Bar(name="Overall", x=names, y=overall, marker_color="#c084fc", text=[f"{v:.1f}%" for v in overall], textposition="outside"))
+                fig1.add_trace(go.Bar(name="Volatile periods", x=names, y=volatile, marker_color="#00e5ff", text=[f"{v:.1f}%" for v in volatile], textposition="outside"))
+                fig1.add_hline(y=90, line_dash="dash", line_color="#ff4b4b", annotation_text="90% Target", annotation_font_color="#ff4b4b")
 
-                ax.axhline(90, color="#ff4b4b", ls="--", lw=1.5, label="90% Target")
-                ax.set_xticks(x); ax.set_xticklabels(names, color="#e5e7eb", fontsize=11, fontweight="bold")
-                ax.set_ylabel("Empirical Coverage (%)", color="#94a3b8", fontsize=9)
-                ax.set_ylim(82, 100)
-                ax.tick_params(colors="#94a3b8", labelsize=8)
-                ax.spines[:].set_color("#1f2937")
-                ax.legend(fontsize=8, labelcolor="#e5e7eb", facecolor="#1e293b",
-                           edgecolor="#334155", loc="lower right")
-
-                for bar, val in zip(list(bars1)+list(bars2), all_c+vol_c):
-                    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.2,
-                            f"{val:.1f}%", ha="center", va="bottom",
-                            fontsize=7, color="#e5e7eb")
-
-                plt.tight_layout()
-                st.pyplot(fig, use_container_width=True)
-                plt.close()
+                fig1.update_layout(
+                    barmode="group",
+                    template="plotly_dark",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(11,16,27,0.6)",
+                    margin=dict(l=40, r=20, t=30, b=40),
+                    height=320,
+                    yaxis=dict(range=[82, 100], title="Empirical Coverage (%)", gridcolor="rgba(255,255,255,0.06)"),
+                    xaxis=dict(gridcolor="rgba(255,255,255,0.06)"),
+                    legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5),
+                    hovermode="x unified"
+                )
+                st.plotly_chart(fig1, use_container_width=True)
 
         with img_col2:
             with st.container(border=True):
                 st.markdown("**Interval Width Distribution · Volatile Periods**")
-                st.caption("Narrower intervals = more efficient. "
-                           "ACI adapts width in real-time; SCP is fixed at 4.0 regardless of conditions.")
+                st.caption("Narrower intervals = more efficient. ACI adapts width in real-time; SCP is fixed at 4.0.")
 
                 v_mask = df["is_volatile"] == 1
                 df_v   = df[v_mask]
@@ -771,47 +719,85 @@ else:
                 scp_width  = S.get("SCP_interval_width_volatile", 4.0)
                 qr_width   = S.get("QR_interval_width_volatile",  2.51)
 
-                fig2, ax2 = plt.subplots(figsize=(6, 3.5))
-                fig2.patch.set_facecolor("#0b101b")
-                ax2.set_facecolor("#0b101b")
+                fig2 = px.histogram(aci_widths, nbins=25, histnorm="probability density", opacity=0.85, color_discrete_sequence=["#00e5ff"])
+                fig2.add_vline(x=scp_width, line_dash="dash", line_color="#c084fc", annotation_text=f"SCP fixed ({scp_width:.1f})")
+                fig2.add_vline(x=qr_width, line_dash="dot", line_color="#38bdf8", annotation_text=f"QR mean ({qr_width:.2f})")
 
-                ax2.hist(aci_widths, bins=30, color="#00e5ff", alpha=0.8,
-                          label=f"ACI (adaptive, mean={aci_widths.mean():.2f})", density=True)
-                ax2.axvline(scp_width, color="#818cf8", lw=2, ls="--",
-                             label=f"SCP (fixed = {scp_width:.1f})")
-                ax2.axvline(qr_width, color="#38bdf8", lw=2, ls=":",
-                             label=f"QR (mean = {qr_width:.2f})")
-
-                ax2.set_xlabel("Interval Width (units)", color="#94a3b8", fontsize=9)
-                ax2.set_ylabel("Density", color="#94a3b8", fontsize=9)
-                ax2.tick_params(colors="#94a3b8", labelsize=8)
-                ax2.spines[:].set_color("#1f2937")
-                ax2.legend(fontsize=8, labelcolor="#e5e7eb", facecolor="#1e293b",
-                            edgecolor="#334155")
-                plt.tight_layout()
-                st.pyplot(fig2, use_container_width=True)
-                plt.close()
+                fig2.update_layout(
+                    template="plotly_dark",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(11,16,27,0.6)",
+                    margin=dict(l=40, r=20, t=30, b=40),
+                    height=320,
+                    showlegend=False,
+                    yaxis=dict(title="Density", gridcolor="rgba(255,255,255,0.06)"),
+                    xaxis=dict(title="Interval Width (units)", gridcolor="rgba(255,255,255,0.06)"),
+                    hovermode="x"
+                )
+                st.plotly_chart(fig2, use_container_width=True)
 
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
-
-        p1 = OUTPUT_DIR / "alpha_trajectory.png"
-        p2 = OUTPUT_DIR / "interval_comparison.png"
 
         c1, c2 = st.columns(2, gap="large")
         with c1:
             with st.container(border=True):
                 st.markdown("**ACI Adaptive α Trajectory**")
-                st.caption("α_t updates after each demand observation. "
-                           "Drops below target during demand shocks → intervals widen automatically. "
-                           "Orange = volatile regime.")
-                if p1.exists(): st.image(str(p1), use_container_width=True)
+                st.caption("Interactive crosshair: hover to view dynamic α_t step adjustments across sequential evaluation.")
+
+                rolling_alpha = df["alpha_t"].rolling(100, min_periods=1).mean()
+                rolling_vol   = df["is_volatile"].rolling(100, min_periods=1).mean()
+
+                fig3 = go.Figure()
+                fig3.add_trace(go.Scatter(x=df.index, y=rolling_alpha, mode="lines", name="α_t (adaptive)", line=dict(color="#38bdf8", width=2)))
+                fig3.add_hline(y=0.10, line_dash="dash", line_color="#ff4b4b", annotation_text="α target = 0.10")
+
+                vol_mask = (rolling_vol > 0.3).astype(int) * 0.22
+                fig3.add_trace(go.Scatter(x=df.index, y=vol_mask, mode="lines", fill="tozeroy", fillcolor="rgba(245, 158, 11, 0.18)", line=dict(width=0), name="Volatile Regime", hoverinfo="skip"))
+
+                fig3.update_layout(
+                    template="plotly_dark",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(11,16,27,0.6)",
+                    margin=dict(l=40, r=20, t=30, b=40),
+                    height=320,
+                    yaxis=dict(title="α_t value", range=[0, 0.23], gridcolor="rgba(255,255,255,0.06)"),
+                    xaxis=dict(title="Test time step", gridcolor="rgba(255,255,255,0.06)"),
+                    legend=dict(orientation="h", yanchor="bottom", y=-0.35, xanchor="center", x=0.5),
+                    hovermode="x unified"
+                )
+                st.plotly_chart(fig3, use_container_width=True)
 
         with c2:
             with st.container(border=True):
-                st.markdown("**Prediction Interval Comparison · First 150 Test Steps**")
-                st.caption("ACI dynamically narrows during confident periods, "
-                           "widens during uncertain ones. QR and SCP maintain fixed width.")
-                if p2.exists(): st.image(str(p2), use_container_width=True)
+                st.markdown("**Prediction Interval Tracking · Adaptive Conformal Band**")
+                st.caption("Hover to inspect real-time adaptive ACI 90% confidence bounds wrapping around LightGBM demand forecasts.")
+
+                sub_df = df[df["sku_id"] == "FOODS_2_368_TX_2_evaluation"].head(120)
+                if len(sub_df) == 0: sub_df = df[df["true_demand"] > 0].head(120)
+                steps  = np.arange(len(sub_df))
+                pf     = sub_df["point_forecast"].values
+                td     = sub_df["true_demand"].values
+                aci_lo = sub_df["interval_lower"].values
+                aci_hi = sub_df["interval_upper"].values
+
+                fig4 = go.Figure()
+                fig4.add_trace(go.Scatter(x=steps, y=aci_hi, mode="lines", line=dict(width=0), showlegend=False, hoverinfo="skip"))
+                fig4.add_trace(go.Scatter(x=steps, y=aci_lo, mode="lines", fill="tonexty", fillcolor="rgba(0, 229, 255, 0.28)", line=dict(width=0), name="ACI 90% Conformal Band"))
+                fig4.add_trace(go.Scatter(x=steps, y=pf, mode="lines", line=dict(color="#818cf8", dash="dash", width=1.8), name="LightGBM Forecast"))
+                fig4.add_trace(go.Scatter(x=steps, y=td, mode="markers", marker=dict(size=4.5, color="#ffffff"), name="True Demand"))
+
+                fig4.update_layout(
+                    template="plotly_dark",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(11,16,27,0.6)",
+                    margin=dict(l=40, r=20, t=30, b=40),
+                    height=320,
+                    yaxis=dict(title="Demand (units)", gridcolor="rgba(255,255,255,0.06)"),
+                    xaxis=dict(title="Test time step", gridcolor="rgba(255,255,255,0.06)"),
+                    legend=dict(orientation="h", yanchor="bottom", y=-0.35, xanchor="center", x=0.5),
+                    hovermode="x unified"
+                )
+                st.plotly_chart(fig4, use_container_width=True)
 
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
         st.markdown('<div class="sec-title">Inventory Simulation · ACI vs QR Baseline</div>', unsafe_allow_html=True)
@@ -859,51 +845,33 @@ else:
             k5.metric("Avg Safety Stock",      f"{avg_ss:.1f} units")
 
             with st.container(border=True):
-                fig3, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(14, 6),
-                                                        sharex=True, facecolor="#0b101b")
-                ax_top.set_facecolor("#0b101b")
-                ax_bot.set_facecolor("#0b101b")
+                st.caption("Interactive crosshair: hover across the timeline to view SKU demand dynamics and real-time reliability SLA tracking.")
+                fig_sku = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.1, subplot_titles=("Demand vs Adaptive 90% Conformal Interval", "Reliability Score SLA Tracking"))
 
-                dates    = pd.to_datetime(sku_df["date"])
-                demand   = sku_df["true_demand"].values
-                forecast = sku_df["point_forecast"].values
-                lo       = sku_df["interval_lower"].values
-                hi       = sku_df["interval_upper"].values
-                rel      = sku_df["reliability_score"].values
-                vol      = sku_df["is_volatile"].values
+                dates = sku_df["date"]
+                fig_sku.add_trace(go.Scatter(x=dates, y=sku_df["interval_upper"], mode="lines", line=dict(width=0), showlegend=False, hoverinfo="skip"), row=1, col=1)
+                fig_sku.add_trace(go.Scatter(x=dates, y=sku_df["interval_lower"], mode="lines", fill="tonexty", fillcolor="rgba(0, 229, 255, 0.25)", line=dict(width=0), name="ACI 90% Interval"), row=1, col=1)
+                fig_sku.add_trace(go.Scatter(x=dates, y=sku_df["point_forecast"], mode="lines", line=dict(color="#818cf8", dash="dash", width=1.5), name="LGBM Forecast"), row=1, col=1)
+                fig_sku.add_trace(go.Scatter(x=dates, y=sku_df["true_demand"], mode="lines+markers", marker=dict(size=4, color="#ffffff"), line=dict(color="#ffffff", width=1.2), name="True Demand"), row=1, col=1)
 
-                for i in range(len(dates)-1):
-                    if vol[i]:
-                        ax_top.axvspan(dates.iloc[i], dates.iloc[i+1],
-                                        alpha=0.08, color="#f59e0b", lw=0)
-                        ax_bot.axvspan(dates.iloc[i], dates.iloc[i+1],
-                                        alpha=0.08, color="#f59e0b", lw=0)
+                fig_sku.add_trace(go.Scatter(x=dates, y=sku_df["reliability_score"], mode="lines", line=dict(color="#38bdf8", width=2), name="Reliability Score"), row=2, col=1)
+                fig_sku.add_hline(y=80, line_dash="dash", line_color="#00e5ff", annotation_text="80 SLA Target", row=2, col=1)
+                fig_sku.add_hline(y=60, line_dash="dash", line_color="#f59e0b", annotation_text="60 Critical Threshold", row=2, col=1)
 
-                ax_top.fill_between(dates, lo, hi, alpha=0.25, color="#00e5ff", label="ACI 90% Interval")
-                ax_top.plot(dates, demand,   color="#f8fafc", lw=1.2, alpha=0.95, label="True Demand")
-                ax_top.plot(dates, forecast, color="#818cf8", lw=1,   alpha=0.8,  ls="--", label="LightGBM Forecast")
+                fig_sku.update_layout(
+                    template="plotly_dark",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(11,16,27,0.6)",
+                    margin=dict(l=40, r=20, t=40, b=40),
+                    height=480,
+                    hovermode="x unified",
+                    legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5)
+                )
+                fig_sku.update_yaxes(title_text="Demand (units)", row=1, col=1, gridcolor="rgba(255,255,255,0.06)")
+                fig_sku.update_yaxes(title_text="Reliability Score", range=[0, 105], row=2, col=1, gridcolor="rgba(255,255,255,0.06)")
+                fig_sku.update_xaxes(gridcolor="rgba(255,255,255,0.06)")
 
-                ax_top.set_ylabel("Demand (units)", color="#94a3b8", fontsize=9)
-                ax_top.tick_params(colors="#94a3b8", labelsize=8)
-                ax_top.spines[:].set_color("#1f2937")
-                ax_top.legend(fontsize=8, labelcolor="#e5e7eb", facecolor="#1e293b",
-                               edgecolor="#334155", loc="upper left")
-
-                ax_bot.axhline(80, color="#00e5ff", lw=1, ls="--", alpha=0.7)
-                ax_bot.axhline(60, color="#f59e0b", lw=1, ls="--", alpha=0.7)
-                ax_bot.fill_between(dates, rel, 60,
-                                     where=rel<60, alpha=0.3, color="#ff4b4b")
-                ax_bot.fill_between(dates, rel, 80,
-                                     where=(rel>=60)&(rel<80), alpha=0.2, color="#f59e0b")
-                ax_bot.plot(dates, rel, color="#38bdf8", lw=1.5)
-                ax_bot.set_ylabel("Reliability Score", color="#94a3b8", fontsize=9)
-                ax_bot.set_ylim(0, 105)
-                ax_bot.tick_params(colors="#94a3b8", labelsize=8)
-                ax_bot.spines[:].set_color("#1f2937")
-
-                plt.tight_layout(h_pad=0.3)
-                st.pyplot(fig3, use_container_width=True)
-                plt.close()
+                st.plotly_chart(fig_sku, use_container_width=True)
 
             st.markdown("<div style='margin-top:1.5rem'></div>", unsafe_allow_html=True)
             st.markdown("**Recent Forecasts**")

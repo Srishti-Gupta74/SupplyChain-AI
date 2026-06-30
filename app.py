@@ -777,12 +777,12 @@ elif st.session_state.app_mode == "platform":
                 steps  = np.arange(len(sub_df))
                 pf     = sub_df["point_forecast"].values
                 td     = sub_df["true_demand"].values
-                aci_lo = sub_df["interval_lower"].values
+                aci_lo = np.clip(sub_df["interval_lower"].values, 0, None)  # demand can't be negative
                 aci_hi = sub_df["interval_upper"].values
 
                 fig4 = go.Figure()
-                fig4.add_trace(go.Scatter(x=steps, y=aci_hi, mode="lines", line=dict(width=0), showlegend=False, hoverinfo="skip"))
-                fig4.add_trace(go.Scatter(x=steps, y=aci_lo, mode="lines", fill="tonexty", fillcolor="rgba(0, 229, 255, 0.28)", line=dict(width=0), name="ACI 90% Conformal Band"))
+                fig4.add_trace(go.Scatter(x=steps, y=aci_hi, mode="lines", line=dict(width=0, shape="hv"), showlegend=False, hoverinfo="skip"))
+                fig4.add_trace(go.Scatter(x=steps, y=aci_lo, mode="lines", fill="tonexty", fillcolor="rgba(0, 229, 255, 0.28)", line=dict(width=0, shape="hv"), name="ACI 90% Conformal Band"))
                 fig4.add_trace(go.Scatter(x=steps, y=pf, mode="lines", line=dict(color="#818cf8", dash="dash", width=1.8), name="LightGBM Forecast"))
                 fig4.add_trace(go.Scatter(x=steps, y=td, mode="markers", marker=dict(size=4.5, color="#ffffff"), name="True Demand"))
 
@@ -846,29 +846,38 @@ elif st.session_state.app_mode == "platform":
 
             with st.container(border=True):
                 st.caption("Interactive crosshair: hover across the timeline to view SKU demand dynamics and real-time reliability SLA tracking.")
-                fig_sku = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.1, subplot_titles=("Demand vs Adaptive 90% Conformal Interval", "Reliability Score SLA Tracking"))
+                fig_sku = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.15, subplot_titles=("Demand vs Adaptive 90% Conformal Interval", "Reliability Score SLA Tracking"), row_heights=[0.6, 0.4])
 
                 dates = sku_df["date"]
-                fig_sku.add_trace(go.Scatter(x=dates, y=sku_df["interval_upper"], mode="lines", line=dict(width=0), showlegend=False, hoverinfo="skip"), row=1, col=1)
-                fig_sku.add_trace(go.Scatter(x=dates, y=sku_df["interval_lower"], mode="lines", fill="tonexty", fillcolor="rgba(0, 229, 255, 0.25)", line=dict(width=0), name="ACI 90% Interval"), row=1, col=1)
+                display_lower = sku_df["interval_lower"].clip(lower=0)  # clamp at 0 for display — demand can't be negative
+                fig_sku.add_trace(go.Scatter(x=dates, y=sku_df["interval_upper"], mode="lines", line=dict(width=0, shape="hv"), showlegend=False, hoverinfo="skip"), row=1, col=1)
+                fig_sku.add_trace(go.Scatter(x=dates, y=display_lower, mode="lines", fill="tonexty", fillcolor="rgba(0, 229, 255, 0.25)", line=dict(width=0, shape="hv"), name="ACI 90% Interval"), row=1, col=1)
                 fig_sku.add_trace(go.Scatter(x=dates, y=sku_df["point_forecast"], mode="lines", line=dict(color="#818cf8", dash="dash", width=1.5), name="LGBM Forecast"), row=1, col=1)
                 fig_sku.add_trace(go.Scatter(x=dates, y=sku_df["true_demand"], mode="lines+markers", marker=dict(size=4, color="#ffffff"), line=dict(color="#ffffff", width=1.2), name="True Demand"), row=1, col=1)
 
-                fig_sku.add_trace(go.Scatter(x=dates, y=sku_df["reliability_score"], mode="lines", line=dict(color="#38bdf8", width=2), name="Reliability Score"), row=2, col=1)
-                fig_sku.add_hline(y=80, line_dash="dash", line_color="#00e5ff", annotation_text="80 SLA Target", row=2, col=1)
-                fig_sku.add_hline(y=60, line_dash="dash", line_color="#f59e0b", annotation_text="60 Critical Threshold", row=2, col=1)
+                # Reliability Score — clamp to 0-100
+                rel_scores = sku_df["reliability_score"].clip(0, 100)
+                fig_sku.add_trace(go.Scatter(x=dates, y=rel_scores, mode="lines", line=dict(color="#38bdf8", width=2), name="Reliability Score"), row=2, col=1)
+
+                # SLA reference lines as explicit traces (avoids add_hline rendering bugs in subplots)
+                fig_sku.add_trace(go.Scatter(x=[dates.iloc[0], dates.iloc[-1]], y=[80, 80], mode="lines", line=dict(color="#00e5ff", dash="dash", width=1.5), name="80 SLA Target", showlegend=False), row=2, col=1)
+                fig_sku.add_trace(go.Scatter(x=[dates.iloc[0], dates.iloc[-1]], y=[60, 60], mode="lines", line=dict(color="#f59e0b", dash="dash", width=1.5), name="60 Critical Threshold", showlegend=False), row=2, col=1)
+
+                # Annotations positioned to avoid overlap
+                fig_sku.add_annotation(x=dates.iloc[-1], y=80, text="80 SLA Target", showarrow=False, xanchor="left", yanchor="bottom", font=dict(color="#00e5ff", size=10), xref="x2", yref="y2")
+                fig_sku.add_annotation(x=dates.iloc[-1], y=60, text="60 Critical", showarrow=False, xanchor="left", yanchor="top", font=dict(color="#f59e0b", size=10), xref="x2", yref="y2")
 
                 fig_sku.update_layout(
                     template="plotly_dark",
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(11,16,27,0.6)",
-                    margin=dict(l=40, r=20, t=40, b=40),
-                    height=480,
+                    margin=dict(l=50, r=80, t=40, b=40),
+                    height=520,
                     hovermode="x unified",
-                    legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5)
+                    legend=dict(orientation="h", yanchor="bottom", y=-0.18, xanchor="center", x=0.5)
                 )
                 fig_sku.update_yaxes(title_text="Demand (units)", row=1, col=1, gridcolor="rgba(255,255,255,0.06)")
-                fig_sku.update_yaxes(title_text="Reliability Score", range=[0, 105], row=2, col=1, gridcolor="rgba(255,255,255,0.06)")
+                fig_sku.update_yaxes(title_text="Reliability Score", range=[0, 105], fixedrange=True, autorange=False, row=2, col=1, gridcolor="rgba(255,255,255,0.06)")
                 fig_sku.update_xaxes(gridcolor="rgba(255,255,255,0.06)")
 
                 st.plotly_chart(fig_sku, use_container_width=True)

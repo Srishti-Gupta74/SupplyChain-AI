@@ -358,10 +358,10 @@ if st.session_state.app_mode == "landing":
           <div style="font-family:'JetBrains Mono', monospace; font-size:36px; font-weight:900; color:#ff4b4b; line-height:1; margin-bottom:8px;">{excess_freed:+.1f}%</div>
           <div style="font-family:'JetBrains Mono', monospace; font-size:11px; color:#718096; letter-spacing:1.5px; font-weight:700;">CAPITAL RELEASED</div>
        </div>
-       <div style="padding:28px 20px; text-align:center;">
-          <div style="font-family:'JetBrains Mono', monospace; font-size:36px; font-weight:900; color:#ffffff; line-height:1; margin-bottom:8px;">30,490</div>
-          <div style="font-family:'JetBrains Mono', monospace; font-size:11px; color:#718096; letter-spacing:1.5px; font-weight:700;">BENCHMARK SKUS</div>
-       </div>
+        <div style="padding:28px 20px; text-align:center;">
+           <div style="font-family:'JetBrains Mono', monospace; font-size:36px; font-weight:900; color:#ffffff; line-height:1; margin-bottom:8px;">14,350</div>
+           <div style="font-family:'JetBrains Mono', monospace; font-size:11px; color:#718096; letter-spacing:1.5px; font-weight:700;">TEST ROWS EVALUATED</div>
+        </div>
     </div>
     """)
 
